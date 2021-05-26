@@ -14,18 +14,21 @@ declare(strict_types=1);
 namespace Runroom\SeoBundle\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Runroom\SeoBundle\Tests\Fixtures\EntityMetaInformationFixture;
+use Runroom\SeoBundle\Factory\EntityMetaInformationFactory;
+use Zenstruck\Foundry\Test\Factories;
 
 class EntityMetaInformationTest extends TestCase
 {
+    use Factories;
+
     /** @test */
     public function itGetsProperties(): void
     {
-        $metaInformation = EntityMetaInformationFixture::create();
+        $metaInformation = EntityMetaInformationFactory::new()->withTranslations(['en'])->create();
 
-        self::assertSame(EntityMetaInformationFixture::TITLE, $metaInformation->__toString());
+        self::assertNotEmpty((string) $metaInformation);
         self::assertNull($metaInformation->getId());
-        self::assertSame(EntityMetaInformationFixture::TITLE, $metaInformation->getTitle());
-        self::assertSame(EntityMetaInformationFixture::DESCRIPTION, $metaInformation->getDescription());
+        self::assertNotNull($metaInformation->getTitle());
+        self::assertNotNull($metaInformation->getDescription());
     }
 }

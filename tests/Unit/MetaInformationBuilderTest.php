@@ -15,14 +15,17 @@ namespace Runroom\SeoBundle\Tests\Unit;
 
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Runroom\SeoBundle\Factory\MetaInformationFactory;
 use Runroom\SeoBundle\MetaInformation\AbstractMetaInformationProvider;
 use Runroom\SeoBundle\MetaInformation\MetaInformationBuilder;
 use Runroom\SeoBundle\Repository\MetaInformationRepository;
-use Runroom\SeoBundle\Tests\Fixtures\MetaInformationFixture;
 use Symfony\Component\PropertyAccess\PropertyAccess;
+use Zenstruck\Foundry\Test\Factories;
 
 class MetaInformationBuilderTest extends TestCase
 {
+    use Factories;
+
     /** @var Stub&MetaInformationRepository */
     private $repository;
 
@@ -32,7 +35,6 @@ class MetaInformationBuilderTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = $this->createStub(MetaInformationRepository::class);
-        $this->repository->method('findOneBy')->willReturn(MetaInformationFixture::create());
 
         $this->builder = new MetaInformationBuilder(
             $this->repository,
@@ -45,6 +47,13 @@ class MetaInformationBuilderTest extends TestCase
     {
         $model = new \stdClass();
         $model->placeholder = 'test';
+
+        $metaInformation = MetaInformationFactory::new()->withTranslations(['en'], [
+            'title' => '[placeholder] title',
+            'description' => '[missing] description',
+        ])->create()->object();
+
+        $this->repository->method('findOneBy')->willReturn($metaInformation);
 
         $metas = $this->builder->build(new TestMetaInformationProvider(), 'test', $model);
 

@@ -15,18 +15,36 @@ use Runroom\SeoBundle\Admin\EntityMetaInformationAdmin;
 use Runroom\SeoBundle\Admin\MetaInformationAdmin;
 use Runroom\SeoBundle\Entity\EntityMetaInformation;
 use Runroom\SeoBundle\Entity\MetaInformation;
+use Sonata\AdminBundle\Controller\CRUDController;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
     $services = $containerConfigurator->services();
 
-    $services->set(MetaInformationAdmin::class)
+    $metaInformationAdmin = $services->set(MetaInformationAdmin::class)
         ->public()
-        ->args([null, MetaInformation::class, null])
-        ->tag('sonata.admin', ['manager_type' => 'orm', 'label' => 'SEO']);
+        ->tag('sonata.admin', [
+            'model_class' => MetaInformation::class,
+            'manager_type' => 'orm',
+            'label' => 'SEO',
+        ]);
 
-    $services->set(EntityMetaInformationAdmin::class)
+    /* @todo: Simplify this when dropping support for SonataAdminBundle 3 */
+    if (!is_a(CRUDController::class, AbstractController::class, true)) {
+        $metaInformationAdmin->args([null, MetaInformation::class, null]);
+    }
+
+    $entityMetaInformationAdmin = $services->set(EntityMetaInformationAdmin::class)
         ->public()
-        ->args([null, EntityMetaInformation::class, null])
-        ->tag('sonata.admin', ['manager_type' => 'orm', 'label' => 'Entity SEO']);
+        ->tag('sonata.admin', [
+            'model_class' => EntityMetaInformation::class,
+            'manager_type' => 'orm',
+            'label' => 'Entity SEO',
+        ]);
+
+    /* @todo: Simplify this when dropping support for SonataAdminBundle 3 */
+    if (!is_a(CRUDController::class, AbstractController::class, true)) {
+        $entityMetaInformationAdmin->args([null, EntityMetaInformation::class, null]);
+    }
 };
